@@ -1,6 +1,7 @@
 package android.didikee.sample;
 
 import android.Manifest;
+import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.didikee.donate.AlipayDonate;
 import android.didikee.donate.WeiXinDonate;
@@ -11,6 +12,7 @@ import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
@@ -49,7 +51,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btAlipayMerchant = ((Button) findViewById(R.id.bt_alipay_merchant));
         radioGroup = ((RadioGroup) findViewById(R.id.radio_group));
         radioGroup.setOnCheckedChangeListener(this);
-        radioGroup.check(R.id.radio_default_check);
+        radioGroup.getChildAt(0).performClick();
 
         btAlipayCustom.setOnClickListener(this);
         btAlipayFree.setOnClickListener(this);
@@ -91,7 +93,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onCheckedChanged(RadioGroup group, @IdRes int checkedId) {
         RadioButton checkedRadioButton = (RadioButton) group.findViewById(checkedId);
         String text = checkedRadioButton.getText().toString().trim();
-        currentMoney = Integer.valueOf(text.split("_")[1]);
+        currentMoney = Integer.valueOf(text.replace("元", "").trim());
         btAlipayCustom.setText("支付宝捐赠(" + currentMoney + "元)");
     }
 
@@ -110,10 +112,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
             //已经有权限
-            donateWeixin();
+            showDonateTipDialog();
         } else {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_CODE);
         }
+    }
+
+    private void showDonateTipDialog() {
+        new AlertDialog.Builder(this)
+                .setTitle("微信捐赠操作步骤")
+                .setMessage("点击确定按钮后会跳转微信扫描二维码界面：\n\n" + "1. 点击右上角的菜单按钮\n\n" + "2. 点击'从相册选取二维码'\n\n" + "3. 选择第一张二维码图片即可\n\n")
+                .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        donateWeixin();
+                    }
+                })
+                .setNegativeButton("取消", null)
+                .show();
     }
 
     private void donateWeixin() {
