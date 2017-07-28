@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Android捐赠演示</string>
+    <string name="msg_google_pay_limit">为遵守 Google应用内付款条例 ，以下演示结果均以截屏的形式展示。本应用不产生任何购买，截图仅供演示参考。</string>
+    <string name="msg_pay_notice">为了展示真实的支付效果，以下操作均为真实金额交易，请勿确认支付（除非真心想捐赠我），如果不小心导致支付请邮件我（didikee@outlook.com）进行退款。</string>
 </resources>

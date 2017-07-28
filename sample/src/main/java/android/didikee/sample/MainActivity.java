@@ -2,6 +2,8 @@ package android.didikee.sample;
 
 import android.Manifest;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.didikee.donate.AlipayDonate;
 import android.didikee.donate.WeiXinDonate;
@@ -18,6 +20,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
@@ -39,6 +42,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button btAlipayMerchant;
 
     private int currentMoney = 0;
+    private boolean isGooglePlay = true;
+    private TextView noticeTextView;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +52,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
 
         findViewById(R.id.bt_weixin).setOnClickListener(this);
+        noticeTextView = ((TextView) findViewById(R.id.notice));
         btAlipayCustom = ((Button) findViewById(R.id.bt_alipay));
         btAlipayFree = ((Button) findViewById(R.id.bt_alipay_free));
         btAlipayMerchant = ((Button) findViewById(R.id.bt_alipay_merchant));
@@ -56,11 +63,71 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btAlipayCustom.setOnClickListener(this);
         btAlipayFree.setOnClickListener(this);
         btAlipayMerchant.setOnClickListener(this);
+
+        checkPlatfrom();
+    }
+
+    private void checkPlatfrom() {
+        ApplicationInfo applicationInfo = null;
+        try {
+            applicationInfo = getPackageManager().getApplicationInfo(getPackageName(), PackageManager.GET_META_DATA);
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+        if (applicationInfo == null) return;
+        String value = applicationInfo.metaData.getString("PAY_TYPE");
+        isGooglePlay = "Google".equalsIgnoreCase(value);
+
+        //layout notice
+        noticeTextView.setText(getResources().getString(isGooglePlay ? R.string.msg_google_pay_limit : R.string.msg_pay_notice));
     }
 
     @Override
     public void onClick(View v) {
         int id = v.getId();
+        if (isGooglePlay) {
+            // 支付限制，改为图片展示
+            doGoogle(id);
+        } else {
+            // 正常情况下
+            doNormal(id);
+        }
+
+    }
+
+    private String endString = "图片只做演示参考,以实际场景为准。";
+
+    private void doGoogle(int id) {
+        switch (id) {
+            case R.id.bt_weixin:
+                //微信捐赠
+                showDonateTipDialog();
+                break;
+            case R.id.bt_alipay:
+                // 自定义价格
+                gotoTipShowActivity("支付宝捐赠--自定义价格", "在实际操作中用户选中相应的价格即可，无需手动输入，用户体验最好。" + endString, R.drawable.p1);
+                break;
+            case R.id.bt_alipay_free:
+                // 用户手动输入金额
+                gotoTipShowActivity("支付宝捐赠--用户填写", "在实际操作中用户必须手动输入金额。灵活度高，用户可以捐赠随意金额。" + endString, R.drawable.p1);
+                break;
+            case R.id.bt_alipay_merchant:
+                // 商户收款
+                gotoTipShowActivity("支付宝捐赠--商户收款", "在实际操作中用户必须手动输入金额。灵活度高，用户可以捐赠随意金额。(能使用其他支付方式)" + endString, R.drawable
+                        .p2);
+                break;
+        }
+    }
+
+    private void gotoTipShowActivity(String title, String tip, int bgRes) {
+        Intent tipIntent = new Intent(this, TipActivity.class);
+        tipIntent.putExtra("title", title);
+        tipIntent.putExtra("tip", tip);
+        tipIntent.putExtra("res", bgRes);
+        startActivity(tipIntent);
+    }
+
+    private void doNormal(int id) {
         switch (id) {
             case R.id.bt_weixin:
                 //微信捐赠
@@ -131,7 +198,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 .setPositiveButton("确定", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        donateWeixin();
+                        if (isGooglePlay){
+                            gotoTipShowActivity("微信捐赠", "在实际操作中用户必须手动输入金额。" + endString, R.drawable.p3);
+                        }else {
+                            donateWeixin();
+                        }
+
                     }
                 })
                 .setNegativeButton("取消", null)
