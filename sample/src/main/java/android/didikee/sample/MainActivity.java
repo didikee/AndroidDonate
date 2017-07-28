@@ -97,6 +97,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btAlipayCustom.setText("支付宝捐赠(" + currentMoney + "元)");
     }
 
+    /**
+     * 支付宝支付
+     * @param payCode 收款码后面的字符串；例如：收款二维码里面的字符串为 https://qr.alipay.com/stx00187oxldjvyo3ofaw60 ，则
+     *                payCode = stx00187oxldjvyo3ofaw60
+     *                注：不区分大小写
+     */
     private void donateAlipay(String payCode) {
         boolean hasInstalledAlipayClient = AlipayDonate.hasInstalledAlipayClient(this);
         if (hasInstalledAlipayClient) {
@@ -132,6 +138,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 .show();
     }
 
+    /**
+     * 需要提前准备好 微信收款码 照片，可通过微信客户端生成
+     */
     private void donateWeixin() {
         InputStream weixinQrIs = getResources().openRawResource(R.raw.didikee_weixin);
         String qrPath = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "AndroidDonateSample" + File.separator +
