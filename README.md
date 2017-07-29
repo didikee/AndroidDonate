@@ -1,6 +1,15 @@
-# Android 捐赠
+# Android APP 内部捐赠实现(支付宝&微信)
 
 > 目前支持 **支付宝**和 **微信**。
+
+
+[<img src="https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png" 
+      alt="Download from Google Play" 
+      height="80">](https://play.google.com/store/apps/details?id=com.didikee.donate.sample)
+      
+**扫描二维码下载demo程序**
+![扫描二维码下载demo](raw/pic/qr-1.2.png)
+
 
 ## 快速集成
 
@@ -53,6 +62,18 @@
         WeiXinDonate.saveDonateQrImage2SDCard(qrPath, BitmapFactory.decodeStream(weixinQrIs));
         WeiXinDonate.donateViaWeiXin(this, qrPath);
     }
+```
+
+### 注意权限
+
+由于二维码的写入读取SDCard,所以不要忘记加上权限:
+
+```
+	<!-- 微信需要往sd卡写入二维码 -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <!-- 创建与删除文件 -->
+    <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS"/>
 ```
 
 
